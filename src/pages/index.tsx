@@ -66,13 +66,13 @@ export default function Home({ initialProducts }: HomeProps) {
         {/* Header */}
         <header className="bg-white shadow-sm border-b sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
-                <h1 className="text-2xl font-bold text-green-600">AbhiruchiEats</h1>
-                <span className="ml-2 text-sm text-gray-500 hidden sm:block">Homemade Delights</span>
+            <div className="flex items-center justify-between h-14 sm:h-16">
+              <div className="flex items-center min-w-0 flex-1">
+                <h1 className="text-lg sm:text-2xl font-bold text-green-600 truncate">AbhiruchiEats</h1>
+                <span className="ml-2 text-xs sm:text-sm text-gray-500 hidden sm:block">Homemade Delights</span>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex space-x-8">
                   <Link href="/" className="text-green-600 font-medium">Home</Link>
@@ -81,12 +81,12 @@ export default function Home({ initialProducts }: HomeProps) {
                 </nav>
 
                 {/* Cart Icon */}
-                <Link href="/cart" className="relative p-2 text-gray-700 hover:text-green-600 transition-colors">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/cart" className="relative p-2 text-gray-700 hover:text-green-600 transition-colors touch-manipulation">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6M20 13v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2-2v4m16 0H4" />
                   </svg>
                   {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
                       {itemCount}
                     </span>
                   )}
@@ -95,10 +95,10 @@ export default function Home({ initialProducts }: HomeProps) {
                 {/* Mobile Menu Button */}
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="md:hidden p-2 text-gray-700 hover:text-green-600 transition-colors"
+                  className="md:hidden p-2 text-gray-700 hover:text-green-600 transition-colors touch-manipulation"
                   aria-label="Toggle mobile menu"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {mobileMenuOpen ? (
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     ) : (
@@ -111,47 +111,47 @@ export default function Home({ initialProducts }: HomeProps) {
 
             {/* Mobile Navigation Menu */}
             {mobileMenuOpen && (
-              <div className="md:hidden border-t border-gray-200 py-4 animate-fade-in">
-                <nav className="flex flex-col space-y-4">
+              <div className="md:hidden border-t border-gray-200 py-3 animate-fade-in">
+                <nav className="flex flex-col space-y-2">
                   <Link
                     href="/"
-                    className="flex items-center px-4 py-2 text-green-600 font-medium bg-green-50 rounded-lg"
+                    className="flex items-center px-4 py-3 text-green-600 font-medium bg-green-50 rounded-lg touch-manipulation"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    Home
+                    <span className="text-base">Home</span>
                   </Link>
                   <Link
                     href="/about"
-                    className="flex items-center px-4 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    className="flex items-center px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    About Us
+                    <span className="text-base">About Us</span>
                   </Link>
                   <Link
                     href="/contact"
-                    className="flex items-center px-4 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    className="flex items-center px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Contact Us
+                    <span className="text-base">Contact Us</span>
                   </Link>
                   <Link
                     href="/cart"
-                    className="flex items-center px-4 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    className="flex items-center px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6M20 13v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2-2v4m16 0H4" />
                     </svg>
-                    Shopping Cart
+                    <span className="text-base">Shopping Cart</span>
                     {itemCount > 0 && (
                       <span className="ml-auto bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                         {itemCount}
@@ -165,28 +165,28 @@ export default function Home({ initialProducts }: HomeProps) {
         </header>
 
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-green-600 to-green-700 text-white py-16">
+        <section className="bg-gradient-to-r from-green-600 to-green-700 text-white py-12 sm:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
               Authentic Homemade Food
             </h2>
-            <p className="text-xl md:text-2xl mb-8 text-green-100">
+            <p className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 text-green-100 px-4">
               Discover the taste of tradition with our handcrafted pickles and delicacies
             </p>
           </div>
         </section>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Category Filter */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop by Category</h3>
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Shop by Category</h3>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => handleCategoryChange(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors touch-manipulation ${
                     selectedCategory === category
                       ? 'bg-green-600 text-white'
                       : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -214,7 +214,7 @@ export default function Home({ initialProducts }: HomeProps) {
 
           {/* Products Grid */}
           {!loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {products.length > 0 ? (
                 products.map((product) => (
                   <ProductCard
@@ -223,8 +223,8 @@ export default function Home({ initialProducts }: HomeProps) {
                   />
                 ))
               ) : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-gray-500 text-lg">
+                <div className="col-span-full text-center py-8 sm:py-12">
+                  <p className="text-gray-500 text-base sm:text-lg px-4">
                     {selectedCategory === 'all'
                       ? 'No products available at the moment.'
                       : `No products found in ${selectedCategory} category.`}

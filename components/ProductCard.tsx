@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({  product }) => {
         {/* Price and Add to Cart */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-2xl font-bold text-green-600">
+            <span className="text-xl sm:text-2xl font-bold text-green-600">
               ₹{product.price.toFixed(2)}
             </span>
           </div>
@@ -68,7 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({  product }) => {
           <button
             onClick={handleAddToCart}
             disabled={isAdding}
-            className={`font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+            className={`font-medium py-2 px-3 sm:px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-sm sm:text-base touch-manipulation ${
               showSuccess
                 ? 'bg-green-500 text-white'
                 : isAdding
@@ -79,17 +79,22 @@ const ProductCard: React.FC<ProductCardProps> = ({  product }) => {
             {isAdding ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Adding...
+                <span className="hidden sm:inline">Adding...</span>
+                <span className="sm:hidden">...</span>
               </div>
             ) : showSuccess ? (
               <div className="flex items-center">
-                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                Added!
+                <span className="hidden sm:inline">Added!</span>
+                <span className="sm:hidden">✓</span>
               </div>
             ) : (
-              'Add to Cart'
+              <>
+                <span className="hidden sm:inline">Add to Cart</span>
+                <span className="sm:hidden">Add</span>
+              </>
             )}
           </button>
         </div>
