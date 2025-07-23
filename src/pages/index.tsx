@@ -19,6 +19,10 @@ export default function Home({ initialProducts }: HomeProps) {
 
   const categories = ['all', 'Pickles', 'Snacks', 'Sweets', 'Beverages', 'Main Course', 'Other'];
 
+  useEffect(() => {
+    fetchProducts(selectedCategory);
+  }, [selectedCategory]); 
+
   // Fetch products based on selected category
   const fetchProducts = async (category: string) => {
     setLoading(true);
