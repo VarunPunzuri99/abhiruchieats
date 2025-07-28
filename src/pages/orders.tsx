@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import CustomerHeader from '../../components/CustomerHeader';
 
 interface OrderItem {
   productId: string;
@@ -132,28 +133,12 @@ const MyOrders: React.FC = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center space-x-4">
-                <Link href="/" className="text-2xl font-bold text-green-600 hover:text-green-700">
-                  🍛 AbhiruchiEats
-                </Link>
-                <span className="text-gray-300">|</span>
-                <h1 className="text-xl font-semibold text-gray-900">My Orders</h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
-                  ← Back to Store
-                </Link>
-                <Link href="/cart" className="text-sm text-green-600 hover:text-green-700">
-                  🛒 Cart
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+        <CustomerHeader
+          title="My Orders"
+          subtitle="Track Your Orders"
+          showBackButton={true}
+          backUrl="/"
+        />
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAdmin } from '../../../contexts/AdminContext';
+import AdminHeader from '../../../components/AdminHeader';
 
 interface Product {
   _id: string;
@@ -187,37 +188,32 @@ const AdminProducts: React.FC = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center space-x-4">
-                <Link href="/admin" className="text-2xl font-bold text-green-600 hover:text-green-700">
-                  AbhiruchiEats
-                </Link>
-                <span className="text-gray-300">|</span>
-                <h1 className="text-xl font-semibold text-gray-900">Product Management</h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={handleAddProduct}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  + Add Product
-                </button>
-                <Link href="/admin/change-password" className="text-sm text-blue-600 hover:text-blue-700">
-                  Change Password
-                </Link>
-                <Link href="/admin" className="text-sm text-gray-600 hover:text-gray-900">
-                  ← Back to Dashboard
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+        <AdminHeader
+          title="Product Management"
+          subtitle="Manage Products & Inventory"
+          showBackButton={true}
+          backUrl="/admin"
+        />
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Page Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
+              <p className="text-gray-600 mt-1">Manage your product catalog and inventory</p>
+            </div>
+            <button
+              onClick={handleAddProduct}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-sm"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span>Add Product</span>
+            </button>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow-sm border p-6">

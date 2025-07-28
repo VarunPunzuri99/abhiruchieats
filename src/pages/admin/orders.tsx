@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAdmin } from '../../../contexts/AdminContext';
+import AdminHeader from '../../../components/AdminHeader';
 
 interface OrderItem {
   productId: string;
@@ -143,25 +144,12 @@ const AdminOrders: React.FC = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center space-x-4">
-                <Link href="/admin" className="text-2xl font-bold text-green-600 hover:text-green-700">
-                  AbhiruchiEats
-                </Link>
-                <span className="text-gray-300">|</span>
-                <h1 className="text-xl font-semibold text-gray-900">Order Management</h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link href="/admin" className="text-sm text-gray-600 hover:text-gray-900">
-                  ← Back to Dashboard
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+        <AdminHeader
+          title="Order Management"
+          subtitle="Manage Customer Orders"
+          showBackButton={true}
+          backUrl="/admin"
+        />
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
