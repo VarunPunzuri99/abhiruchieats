@@ -109,8 +109,8 @@ export default async function handler(
 
   } catch (error) {
     console.error('Error changing admin password:', error);
-    
-    if (error.name === 'JsonWebTokenError') {
+
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
         error: 'Invalid admin token',

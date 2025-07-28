@@ -21,7 +21,7 @@ interface CartContextType extends CartState {
 type CartAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_CART_DATA'; payload: { items: ICartItem[]; cartTotal: number; itemCount: number } }
-  | { type: 'SET_SESSION_ID'; payload: string }
+  | { type: 'SET_SESSION_ID'; payload: string | null }
   | { type: 'CLEAR_CART' };
 
 const initialState: CartState = {
@@ -100,9 +100,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   }, [session, state.sessionId, status]);
 
   const makeRequest = async (url: string, options: RequestInit = {}) => {
-    const headers = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     // Only add session ID header for non-authenticated users

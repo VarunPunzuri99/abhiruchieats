@@ -11,6 +11,7 @@ type Data = {
       email: string;
       name: string;
       role: string;
+      isDefaultPassword: boolean;
     };
   };
   message?: string;

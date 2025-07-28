@@ -148,6 +148,13 @@ export default async function handler(
           { new: true }
         );
 
+        if (!order) {
+          return res.status(404).json({
+            success: false,
+            error: 'Order not found',
+          });
+        }
+
         // Send email notification if status changed
         if (currentOrder.status !== status) {
           try {

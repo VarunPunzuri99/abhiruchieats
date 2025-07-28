@@ -12,6 +12,7 @@ interface HomeProps {
 }
 
 export default function Home({ initialProducts }: HomeProps) {
+  const { data: session } = useSession();
   const [products, setProducts] = useState<IProduct[]>(initialProducts || []);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [stockFilter, setStockFilter] = useState<string>('all'); // 'all', 'inStock', 'outOfStock'
