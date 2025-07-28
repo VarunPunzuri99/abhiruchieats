@@ -1,21 +1,53 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useCart } from '../../contexts/CartContext';
 import CartItem from '../../components/CartItem';
+import UserMenu from '../../components/UserMenu';
 
 const CartPage: React.FC = () => {
-  const { items, cartTotal, itemCount, loading } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { items, cartTotal, itemCount, loading, refreshCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleCheckout = async () => {
+    if (!session) {
+      // Redirect to sign in if not authenticated
+      router.push('/auth/signin?callbackUrl=/cart');
+      return;
+    }
+
     setIsProcessing(true);
-    // TODO: Implement checkout functionality
-    setTimeout(() => {
-      alert('Checkout functionality will be implemented next!');
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh cart to clear items
+        await refreshCart();
+
+        // Redirect to order confirmation
+        router.push(`/orders/confirmation?orderNumber=${data.data.orderNumber}`);
+      } else {
+        throw new Error(data.error || 'Failed to create order');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('There was an error processing your order. Please try again.');
+    } finally {
       setIsProcessing(false);
-    }, 1000);
+    }
   };
 
   if (loading) {
@@ -54,6 +86,11 @@ const CartPage: React.FC = () => {
                   <Link href="/about" className="text-gray-700 hover:text-green-600 transition-colors">About</Link>
                   <Link href="/contact" className="text-gray-700 hover:text-green-600 transition-colors">Contact</Link>
                 </nav>
+
+                {/* User Menu */}
+                <div className="hidden md:block">
+                  <UserMenu />
+                </div>
 
                 {/* Mobile Menu Button */}
                 <button
@@ -106,6 +143,18 @@ const CartPage: React.FC = () => {
                     </svg>
                     <span className="text-base">Contact Us</span>
                   </Link>
+                  {session && (
+                    <Link
+                      href="/orders"
+                      className="flex items-center px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      <span className="text-base">My Orders</span>
+                    </Link>
+                  )}
                   <Link
                     href="/cart"
                     className="flex items-center px-4 py-3 text-green-600 font-medium bg-green-50 rounded-lg touch-manipulation"
@@ -210,24 +259,40 @@ const CartPage: React.FC = () => {
                   </div>
 
                   <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
-                    <button
-                      onClick={handleCheckout}
-                      disabled={isProcessing}
-                      className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base touch-manipulation"
-                    >
-                      {isProcessing ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        'Proceed to Checkout'
-                      )}
-                    </button>
+                    {!session ? (
+                      <div className="space-y-3">
+                        <button
+                          onClick={handleCheckout}
+                          className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors text-base touch-manipulation"
+                        >
+                          Sign In to Checkout
+                        </button>
+                        <p className="text-xs text-gray-500 text-center">
+                          Sign in to save your cart and complete your order
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleCheckout}
+                          disabled={isProcessing}
+                          className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base touch-manipulation"
+                        >
+                          {isProcessing ? (
+                            <div className="flex items-center justify-center">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                              Processing...
+                            </div>
+                          ) : (
+                            'Proceed to Checkout'
+                          )}
+                        </button>
 
-                    <p className="text-xs text-gray-500 text-center mt-2">
-                      Secure checkout powered by AbhiruchiEats
-                    </p>
+                        <p className="text-xs text-gray-500 text-center mt-2">
+                          Secure checkout powered by AbhiruchiEats
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
 

@@ -2,7 +2,8 @@ import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 
 export interface ICartItem extends Document {
   _id: Types.ObjectId;
-  sessionId: string;
+  userId?: string;
+  sessionId?: string;
   productId: string;
   productName: string;
   productDescription: string;
@@ -17,9 +18,13 @@ export interface ICartItem extends Document {
 
 const CartItemSchema: Schema = new Schema(
   {
+    userId: {
+      type: String,
+      trim: true,
+      index: true,
+    },
     sessionId: {
       type: String,
-      required: [true, 'Session ID is required'],
       trim: true,
       index: true,
     },
@@ -71,8 +76,19 @@ const CartItemSchema: Schema = new Schema(
 );
 
 // Create indexes for better query performance
-CartItemSchema.index({ sessionId: 1, productId: 1 }, { unique: true });
+CartItemSchema.index({ userId: 1, productId: 1 }, { unique: true, sparse: true });
+CartItemSchema.index({ sessionId: 1, productId: 1 }, { unique: true, sparse: true });
+CartItemSchema.index({ userId: 1, createdAt: -1 });
 CartItemSchema.index({ sessionId: 1, createdAt: -1 });
+
+// Add validation to ensure either userId or sessionId is present
+CartItemSchema.pre('save', function(next) {
+  if (!this.userId && !this.sessionId) {
+    next(new Error('Either userId or sessionId must be provided'));
+  } else {
+    next();
+  }
+});
 
 // Pre-save middleware to calculate total price
 CartItemSchema.pre<ICartItem>('save', function (next) {

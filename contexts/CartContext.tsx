@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { useSession } from 'next-auth/react';
 import { ICartItem } from '../models/Cart';
 
 interface CartState {
@@ -68,30 +69,46 @@ interface CartProviderProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  const { data: session, status } = useSession();
 
-  // Generate or retrieve session ID
+  // Generate or retrieve session ID for non-authenticated users
   useEffect(() => {
-    let sessionId = localStorage.getItem('cart-session-id');
-    if (!sessionId) {
-      sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('cart-session-id', sessionId);
+    if (status === 'loading') return; // Wait for session to load
+
+    if (!session) {
+      // For non-authenticated users, use session ID
+      let sessionId = localStorage.getItem('cart-session-id');
+      if (!sessionId) {
+        sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('cart-session-id', sessionId);
+      }
+      dispatch({ type: 'SET_SESSION_ID', payload: sessionId });
+    } else {
+      // For authenticated users, clear session ID and use user ID
+      localStorage.removeItem('cart-session-id');
+      dispatch({ type: 'SET_SESSION_ID', payload: null });
     }
-    dispatch({ type: 'SET_SESSION_ID', payload: sessionId });
-  }, []);
+  }, [session, status]);
 
-  // Fetch cart data when session ID is available
+  // Fetch cart data when session changes or session ID is available
   useEffect(() => {
-    if (state.sessionId) {
+    if (status === 'loading') return;
+
+    if (session || state.sessionId) {
       refreshCart();
     }
-  }, [state.sessionId]);
+  }, [session, state.sessionId, status]);
 
   const makeRequest = async (url: string, options: RequestInit = {}) => {
     const headers = {
       'Content-Type': 'application/json',
-      'x-session-id': state.sessionId || '',
       ...options.headers,
     };
+
+    // Only add session ID header for non-authenticated users
+    if (!session && state.sessionId) {
+      headers['x-session-id'] = state.sessionId;
+    }
 
     const response = await fetch(url, { ...options, headers });
     const data = await response.json();
@@ -104,7 +121,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const refreshCart = async () => {
-    if (!state.sessionId) return;
+    if (!session && !state.sessionId) return;
 
     try {
       dispatch({ type: 'SET_LOADING', payload: true });

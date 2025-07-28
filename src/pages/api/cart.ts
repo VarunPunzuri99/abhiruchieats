@@ -1,6 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import dbConnect from '../../../lib/mongodb';
 import CartItem, { ICartItem } from '../../../models/Cart';
+import Product from '../../../models/Product';
 import { v4 as uuidv4 } from 'uuid';
 
 type Data = {
@@ -19,21 +22,37 @@ export default async function handler(
   // Connect to MongoDB
   await dbConnect();
 
-  // Get or create session ID
+  // Get session (user authentication)
+  const session = await getServerSession(req, res, authOptions);
+
+  // Get or create session ID for non-authenticated users
   let sessionId = req.headers['x-session-id'] as string;
-  if (!sessionId) {
+  if (!session && !sessionId) {
     sessionId = uuidv4();
     res.setHeader('x-session-id', sessionId);
+  }
+
+  // Determine cart identifier
+  const cartFilter: any = {};
+  if (session?.user?.id) {
+    cartFilter.userId = session.user.id;
+  } else if (sessionId) {
+    cartFilter.sessionId = sessionId;
+  } else {
+    return res.status(400).json({
+      success: false,
+      error: 'No valid session or user authentication found',
+    });
   }
 
   switch (method) {
     case 'GET':
       try {
-        const cartItems = await CartItem.find({ sessionId }).sort({ createdAt: -1 });
-        
+        const cartItems = await CartItem.find(cartFilter).sort({ createdAt: -1 });
+
         const cartTotal = cartItems.reduce((total, item) => total + item.totalPrice, 0);
         const itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
-        
+
         res.status(200).json({
           success: true,
           data: {
@@ -71,8 +90,24 @@ export default async function handler(
           });
         }
 
+        // Check if product exists and is in stock
+        const product = await Product.findById(productId);
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            error: 'Product not found',
+          });
+        }
+
+        if (!product.inStock) {
+          return res.status(400).json({
+            success: false,
+            error: 'This product is currently out of stock and cannot be added to cart',
+          });
+        }
+
         // Check if item already exists in cart
-        const existingItem = await CartItem.findOne({ sessionId, productId });
+        const existingItem = await CartItem.findOne({ ...cartFilter, productId });
 
         if (existingItem) {
           // Update quantity if item already exists
@@ -87,8 +122,7 @@ export default async function handler(
           });
         } else {
           // Create new cart item
-          const cartItem = await CartItem.create({
-            sessionId,
+          const cartItemData: any = {
             productId,
             productName,
             productDescription,
@@ -97,7 +131,16 @@ export default async function handler(
             productCategory,
             quantity: parseInt(quantity),
             totalPrice: parseFloat(productPrice) * parseInt(quantity),
-          });
+          };
+
+          // Add userId or sessionId based on authentication
+          if (session?.user?.id) {
+            cartItemData.userId = session.user.id;
+          } else {
+            cartItemData.sessionId = sessionId;
+          }
+
+          const cartItem = await CartItem.create(cartItemData);
 
           res.status(201).json({
             success: true,
@@ -144,8 +187,8 @@ export default async function handler(
         }
 
         const cartItem = await CartItem.findOneAndUpdate(
-          { _id: itemId, sessionId },
-          { 
+          { _id: itemId, ...cartFilter },
+          {
             quantity: parseInt(quantity),
             totalPrice: 0, // Will be calculated by pre-save middleware
           },
@@ -190,7 +233,7 @@ export default async function handler(
 
         const deletedItem = await CartItem.findOneAndDelete({
           _id: itemId,
-          sessionId,
+          ...cartFilter,
         });
 
         if (!deletedItem) {

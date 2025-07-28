@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import ProductCard from '../../components/ProductCard';
+import UserMenu from '../../components/UserMenu';
 import { IProduct } from '../../models/Product';
 import { useCart } from '../../contexts/CartContext';
 
@@ -12,6 +14,7 @@ interface HomeProps {
 export default function Home({ initialProducts }: HomeProps) {
   const [products, setProducts] = useState<IProduct[]>(initialProducts || []);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [stockFilter, setStockFilter] = useState<string>('all'); // 'all', 'inStock', 'outOfStock'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,6 +58,19 @@ export default function Home({ initialProducts }: HomeProps) {
     fetchProducts(category);
   };
 
+  const handleStockFilterChange = (filter: string) => {
+    setStockFilter(filter);
+  };
+
+  // Filter products based on category and stock status
+  const filteredProducts = products.filter(product => {
+    const categoryMatch = selectedCategory === 'all' || product.category === selectedCategory;
+    const stockMatch = stockFilter === 'all' ||
+                      (stockFilter === 'inStock' && product.inStock) ||
+                      (stockFilter === 'outOfStock' && !product.inStock);
+    return categoryMatch && stockMatch;
+  });
+
   // Remove the old handleAddToCart function since ProductCard now handles it internally
 
   return (
@@ -95,6 +111,11 @@ export default function Home({ initialProducts }: HomeProps) {
                     </span>
                   )}
                 </Link>
+
+                {/* User Menu */}
+                <div className="hidden md:block">
+                  <UserMenu />
+                </div>
 
                 {/* Mobile Menu Button */}
                 <button
@@ -162,6 +183,18 @@ export default function Home({ initialProducts }: HomeProps) {
                       </span>
                     )}
                   </Link>
+                  {session && (
+                    <Link
+                      href="/orders"
+                      className="flex items-center px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      <span className="text-base">My Orders</span>
+                    </Link>
+                  )}
                 </nav>
               </div>
             )}
@@ -182,23 +215,63 @@ export default function Home({ initialProducts }: HomeProps) {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* Category Filter */}
-          <div className="mb-6 sm:mb-8">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Shop by Category</h3>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
-              {categories.map((category) => (
+          {/* Filters */}
+          <div className="mb-6 sm:mb-8 space-y-4 sm:space-y-6">
+            {/* Category Filter */}
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Shop by Category</h3>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => handleCategoryChange(category)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors touch-manipulation ${
+                      selectedCategory === category
+                        ? 'bg-green-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {category === 'all' ? 'All Products' : category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Stock Filter */}
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Filter by Availability</h3>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 <button
-                  key={category}
-                  onClick={() => handleCategoryChange(category)}
+                  onClick={() => handleStockFilterChange('all')}
                   className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors touch-manipulation ${
-                    selectedCategory === category
+                    stockFilter === 'all'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  All Items
+                </button>
+                <button
+                  onClick={() => handleStockFilterChange('inStock')}
+                  className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors touch-manipulation ${
+                    stockFilter === 'inStock'
                       ? 'bg-green-600 text-white'
                       : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                   }`}
                 >
-                  {category === 'all' ? 'All Products' : category}
+                  ✅ In Stock Only
                 </button>
-              ))}
+                <button
+                  onClick={() => handleStockFilterChange('outOfStock')}
+                  className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors touch-manipulation ${
+                    stockFilter === 'outOfStock'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  ❌ Out of Stock
+                </button>
+              </div>
             </div>
           </div>
 
@@ -219,8 +292,8 @@ export default function Home({ initialProducts }: HomeProps) {
           {/* Products Grid */}
           {!loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {products.length > 0 ? (
-                products.map((product) => (
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
                   <ProductCard
                     key={product._id.toString()}
                     product={product}
@@ -228,13 +301,40 @@ export default function Home({ initialProducts }: HomeProps) {
                 ))
               ) : (
                 <div className="col-span-full text-center py-8 sm:py-12">
-                  <p className="text-gray-500 text-base sm:text-lg px-4">
-                    {selectedCategory === 'all'
+                  <div className="text-6xl mb-4">
+                    {stockFilter === 'outOfStock' ? '📦' : selectedCategory === 'all' ? '🍽️' : '🔍'}
+                  </div>
+                  <p className="text-gray-500 text-base sm:text-lg px-4 mb-2">
+                    {stockFilter === 'outOfStock'
+                      ? 'No out of stock items found.'
+                      : stockFilter === 'inStock'
+                      ? 'No in-stock items found in this category.'
+                      : selectedCategory === 'all'
                       ? 'No products available at the moment.'
                       : `No products found in ${selectedCategory} category.`}
                   </p>
+                  {stockFilter !== 'all' && (
+                    <button
+                      onClick={() => handleStockFilterChange('all')}
+                      className="text-green-600 hover:text-green-700 font-medium text-sm"
+                    >
+                      Show all items
+                    </button>
+                  )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Results Summary */}
+          {!loading && filteredProducts.length > 0 && (
+            <div className="mt-8 text-center">
+              <p className="text-gray-600 text-sm">
+                Showing {filteredProducts.length} of {products.length} products
+                {selectedCategory !== 'all' && ` in ${selectedCategory}`}
+                {stockFilter === 'inStock' && ' (In Stock)'}
+                {stockFilter === 'outOfStock' && ' (Out of Stock)'}
+              </p>
             </div>
           )}
         </main>

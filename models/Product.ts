@@ -7,6 +7,7 @@ export interface IProduct extends Document {
   price: number;
   imageUrl: string;
   category: string;
+  inStock: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,6 +44,10 @@ const ProductSchema: Schema = new Schema(
         values: ['Pickles', 'Snacks', 'Sweets', 'Beverages', 'Main Course', 'Other'],
         message: 'Please select a valid category',
       },
+    },
+    inStock: {
+      type: Boolean,
+      default: true,
     },
   },
   {
